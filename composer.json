@@ -1,0 +1,34 @@
+{
+  "name": "malvik-lab/laravel-jwt",
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vittorio Malaspina",
+      "email": "vittorio.malaspina@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MalvikLab\\LaravelJwt\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "firebase/php-jwt": "^6.8",
+    "illuminate/auth": "^10.24"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "MalvikLab\\LaravelJwt\\Providers\\JwtServiceProvider"
+      ]
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "stable"
+}

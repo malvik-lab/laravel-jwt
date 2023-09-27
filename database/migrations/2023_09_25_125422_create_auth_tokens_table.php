@@ -15,6 +15,8 @@ class CreateAuthTokensTable extends Migration
         Schema::create('auth_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('user_id')->index();
+            $table->json('roles')->nullable();
+            $table->json('permissions')->nullable();
             $table->uuid('at_jti')->index()->unique();
             $table->integer('at_exp')->nullable();
             $table->boolean('at_revoked')->default(false);

@@ -9,62 +9,62 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\Auth\Authenticatable;
-use MalvikLab\LaravelJwt\DTO\TokenPairDTO;
+use MalvikLab\LaravelJwt\DTO\TokenDTO;
+use MalvikLab\LaravelJwt\DTO\TokenBagDTO;
+use MalvikLab\LaravelJwt\Enum\TokenTypeEnum;
 use MalvikLab\LaravelJwt\Models\AuthToken;
+use Exception;
 
 readonly class JwtService
 {
     protected string $alg;
-    protected string $publicKey;
-    protected string $privateKey;
-    protected int $accessTokenTtl;
-    protected int $refreshTokenTtl;
+    protected string $accessTokenPrivateKey;
+    protected string $accessTokenPublicKey;
+    protected string $refreshTokenPrivateKey;
+    protected string $refreshTokenPublicKey;
 
     public function __construct(
         string $alg,
-        string $publicKeyFilePath,
-        string $privateKeyFilePath,
-        int $accessTokenTtl,
-        int $refreshTokenTtl
+        string $accessTokenPrivateKeyFilePath,
+        string $accessTokenPublicKeyFilePath,
+        string $refreshTokenPrivateKeyFilePath,
+        string $refreshTokenPublicKeyFilePath,
     )
     {
         $this->alg = $alg;
-        $this->publicKey = File::get($publicKeyFilePath);
-        $this->privateKey = File::get($privateKeyFilePath);
-        $this->accessTokenTtl = $accessTokenTtl;
-        $this->refreshTokenTtl = $refreshTokenTtl;
-    }
-
-    /**
-     * @return int
-     */
-    public function ttl(): int
-    {
-        return $this->accessTokenTtl;
+        $this->accessTokenPrivateKey = File::get($accessTokenPrivateKeyFilePath);
+        $this->accessTokenPublicKey = File::get($accessTokenPublicKeyFilePath);
+        $this->refreshTokenPrivateKey = File::get($refreshTokenPrivateKeyFilePath);
+        $this->refreshTokenPublicKey = File::get($refreshTokenPublicKeyFilePath);
     }
 
     /**
      * @param Authenticatable $user
-     * @return TokenPairDTO
+     * @param TokenOptions $options
+     * @return TokenBagDTO
      */
-    public function makeTokens(Authenticatable $user): TokenPairDTO
+    public function makeTokens(Authenticatable $user, TokenOptions $options = new TokenOptions()): TokenBagDTO
     {
         $atJti = Str::uuid()->toString();
-        $atExp = $this->accessTokenTtl > 0 ? Carbon::now()->addSeconds($this->accessTokenTtl)->unix() : null;
+        $atExp = $options->getAccessTokenTtl() > 0 ? Carbon::now()->addSeconds($options->getAccessTokenTtl())->unix() : null;
         $payload = [...$this->basePayload($user),
+            'token_type' => TokenTypeEnum::ACCESS_TOKEN->value,
             'jti' => $atJti,
             'exp' => $atExp,
-            'user' => $user->toArray()
+            'user' => $user->toArray(),
+            'roles' => $options->getRoles(),
+            'permissions' => $options->getPermissions(),
         ];
-        $accessToken = $this->encode($payload);
+        $accessToken = $this->encode(TokenTypeEnum::ACCESS_TOKEN, $payload);
 
         $rtJti = Str::uuid()->toString();
-        $rtExp = $this->refreshTokenTtl > 0 ? Carbon::now()->addSeconds($this->refreshTokenTtl)->unix() : null;
+        $rtExp = $options->getRefreshTokenTtl() > 0 ? Carbon::now()->addSeconds($options->getRefreshTokenTtl())->unix() : null;
         $payload = [...$this->basePayload($user),
+            'token_type' => TokenTypeEnum::REFRESH_TOKEN->value,
             'jti' => $rtJti,
             'exp' => $rtExp,
         ];
-        $refreshToken = $this->encode($payload);
+        $refreshToken = $this->encode(TokenTypeEnum::REFRESH_TOKEN, $payload);
 
         $authToken = AuthToken::create([
             'user_id' => $user->getAuthIdentifier(),
@@ -74,22 +74,39 @@ readonly class JwtService
             'rt_exp' => $rtExp,
         ]);
 
-        return new TokenPairDTO(
+        return new TokenBagDTO(
             $accessToken,
             $refreshToken,
-            $authToken
+            $authToken,
+            $options
         );
     }
 
     /**
-     * @param array $tokenData
+     * @param TokenDTO $tokenDTO
+     * @param int|string $userId
      * @return Builder|AuthToken|null
      */
-    public function userFromTokenData(array $tokenData): null | Builder | AuthToken
+    public function authTokenByAccessToken(TokenDTO $tokenDTO, int | string $userId): null | Builder | AuthToken
     {
         return AuthToken::query()
-            ->where('at_jti', $tokenData['jti'])
-            ->orWhere('rt_jti', $tokenData['jti'])
+            ->where('user_id', $userId)
+            ->where('at_jti', $tokenDTO->jti)
+            ->where('at_revoked', 0)
+            ->first();
+    }
+
+    /**
+     * @param TokenDTO $tokenDTO
+     * @param int|string $userId
+     * @return Builder|AuthToken|null
+     */
+    public function authTokenByRefreshToken(TokenDTO $tokenDTO, int | string $userId): null | Builder | AuthToken
+    {
+        return AuthToken::query()
+            ->where('user_id', $userId)
+            ->where('rt_jti', $tokenDTO->jti)
+            ->where('rt_revoked', 0)
             ->first();
     }
 
@@ -111,6 +128,7 @@ readonly class JwtService
         return [
             'iss' => config('app.url'),
             'sub' => $user->getAuthIdentifier(),
+            'token_type' => null,
             'iat' => Carbon::now()->unix(),
             'jti' => null,
             'exp' => null,
@@ -118,27 +136,45 @@ readonly class JwtService
     }
 
     /**
+     * @param TokenTypeEnum $tokenTypeEnum
      * @param array $payload
      * @return string
      */
-    public function encode(array $payload): string
+    public function encode(TokenTypeEnum $tokenTypeEnum, array $payload): string
     {
+        $privateKey = match ($tokenTypeEnum)
+        {
+            TokenTypeEnum::ACCESS_TOKEN => $this->accessTokenPrivateKey,
+            TokenTypeEnum::REFRESH_TOKEN => $this->refreshTokenPrivateKey,
+        };
+
         return FirebaseJwt::encode(
             $payload,
-            $this->privateKey,
+            $privateKey,
             $this->alg
         );
     }
 
     /**
+     * @param TokenTypeEnum $tokenTypeEnum
      * @param string $accessToken
-     * @return array
+     * @return array|null
      */
-    public function decode(string $accessToken): array
+    public function decode(TokenTypeEnum $tokenTypeEnum, string $accessToken): null | array
     {
-        return (array)FirebaseJwt::decode(
-            $accessToken,
-            new FirebaseKey($this->publicKey, $this->alg)
-        );
+        $publicKey = match ($tokenTypeEnum)
+        {
+            TokenTypeEnum::ACCESS_TOKEN => $this->accessTokenPublicKey,
+            TokenTypeEnum::REFRESH_TOKEN => $this->refreshTokenPublicKey,
+        };
+
+        try {
+            return (array)FirebaseJwt::decode(
+                $accessToken,
+                new FirebaseKey($publicKey, $this->alg)
+            );
+        } catch (Exception $e) {
+            return null;
+        }
     }
 }

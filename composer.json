@@ -1,7 +1,14 @@
 {
   "name": "malvik-lab/laravel-jwt",
-  "description": "",
-  "keywords": [],
+  "description": "JSON Web Token Authentication for Laravel",
+  "keywords": [
+    "auth",
+    "authentication",
+    "json web token",
+    "jwt",
+    "laravel",
+    "token"
+  ],
   "license": "MIT",
   "authors": [
     {

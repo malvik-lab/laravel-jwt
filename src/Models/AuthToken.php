@@ -27,4 +27,9 @@ class AuthToken extends Model
         'rt_jti',
         'rt_exp',
     ];
+
+    protected $casts = [
+        'roles' => 'array',
+        'permissions' => 'array',
+    ];
 }

@@ -4,8 +4,8 @@ namespace MalvikLab\LaravelJwt\Services\JwtService;
 
 class TokenOptions
 {
-    private int $accessTokenTtl;
-    private int $refreshTokenTtl;
+    private null | int $accessTokenTtl;
+    private null | int $refreshTokenTtl;
     private array $roles;
     private array $permissions;
     private bool $stealth;
@@ -20,17 +20,17 @@ class TokenOptions
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getAccessTokenTtl(): int
+    public function getAccessTokenTtl(): null | int
     {
         return $this->accessTokenTtl;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getRefreshTokenTtl(): int
+    public function getRefreshTokenTtl(): null | int
     {
         return $this->refreshTokenTtl;
     }
@@ -60,19 +60,19 @@ class TokenOptions
     }
 
     /**
-     * @param int $accessTokenTtl
+     * @param int|null $accessTokenTtl
      * @return void
      */
-    public function setAccessTokenTtl(int $accessTokenTtl): void
+    public function setAccessTokenTtl(null | int $accessTokenTtl): void
     {
         $this->accessTokenTtl = $accessTokenTtl;
     }
 
     /**
-     * @param int $refreshTokenTtl
+     * @param int|null $refreshTokenTtl
      * @return void
      */
-    public function setRefreshTokenTtl(int $refreshTokenTtl): void
+    public function setRefreshTokenTtl(null | int $refreshTokenTtl): void
     {
         $this->refreshTokenTtl = $refreshTokenTtl;
     }

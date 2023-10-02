@@ -46,7 +46,7 @@ readonly class JwtService
     public function makeTokens(Authenticatable $user, TokenOptions $options = new TokenOptions()): TokenBagDTO
     {
         $atJti = Str::uuid()->toString();
-        $atExp = $options->getAccessTokenTtl() >= 0 ? Carbon::now()->addSeconds($options->getAccessTokenTtl())->unix() : null;
+        $atExp = is_int($options->getAccessTokenTtl()) ? Carbon::now()->addSeconds($options->getAccessTokenTtl())->unix() : null;
         $payload = [...$this->basePayload($user),
             'token_type' => TokenTypeEnum::ACCESS_TOKEN->value,
             'jti' => $atJti,
@@ -58,7 +58,7 @@ readonly class JwtService
         $accessToken = $this->encode(TokenTypeEnum::ACCESS_TOKEN, $payload);
 
         $rtJti = Str::uuid()->toString();
-        $rtExp = $options->getRefreshTokenTtl() >= 0 ? Carbon::now()->addSeconds($options->getRefreshTokenTtl())->unix() : null;
+        $rtExp = is_int($options->getRefreshTokenTtl()) ? Carbon::now()->addSeconds($options->getRefreshTokenTtl())->unix() : null;
         $payload = [...$this->basePayload($user),
             'token_type' => TokenTypeEnum::REFRESH_TOKEN->value,
             'jti' => $rtJti,

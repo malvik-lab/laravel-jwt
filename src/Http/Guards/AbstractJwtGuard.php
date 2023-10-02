@@ -64,7 +64,8 @@ abstract class AbstractJwtGuard implements Guard
             return false;
         }
 
-        $authToken = match ($tokenTypeEnum) {
+        $authToken = match ($tokenTypeEnum)
+        {
             TokenTypeEnum::ACCESS_TOKEN => $this->jwtService->authTokenByAccessToken($tokenDTO, $tokenDTO->sub),
             TokenTypeEnum::REFRESH_TOKEN => $this->jwtService->authTokenByRefreshToken($tokenDTO, $tokenDTO->sub),
         };
@@ -96,6 +97,7 @@ abstract class AbstractJwtGuard implements Guard
     }
 
     /**
+     * @param TokenTypeEnum $tokenTypeEnum
      * @return TokenDTO|null
      */
     public function decodeAccessToken(TokenTypeEnum $tokenTypeEnum): null | TokenDTO
@@ -113,7 +115,7 @@ abstract class AbstractJwtGuard implements Guard
             $tokenData['sub'],
             $tokenData['jti'],
             $tokenData['iat'],
-            $tokenData['exp'],
+            array_key_exists('exp', $tokenData) ? $tokenData['exp'] : null,
         );
     }
 

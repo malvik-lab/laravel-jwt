@@ -66,15 +66,20 @@ readonly class JwtService
         ];
         $refreshToken = $this->encode(TokenTypeEnum::REFRESH_TOKEN, $payload);
 
-        $authToken = AuthToken::create([
-            'user_id' => $user->getAuthIdentifier(),
-            'roles' => $options->getRoles(),
-            'permissions' => $options->getPermissions(),
-            'at_jti' => $atJti,
-            'at_exp' => $atExp,
-            'rt_jti' => $rtJti,
-            'rt_exp' => $rtExp,
-        ]);
+        if ( $options->getStealth() )
+        {
+            $authToken = null;
+        } else {
+            $authToken = AuthToken::create([
+                'user_id' => $user->getAuthIdentifier(),
+                'roles' => $options->getRoles(),
+                'permissions' => $options->getPermissions(),
+                'at_jti' => $atJti,
+                'at_exp' => $atExp,
+                'rt_jti' => $rtJti,
+                'rt_exp' => $rtExp,
+            ]);
+        }
 
         return new TokenBagDTO(
             $accessToken,

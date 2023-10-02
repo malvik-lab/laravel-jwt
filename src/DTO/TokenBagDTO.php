@@ -10,7 +10,7 @@ final readonly class TokenBagDTO
     public function __construct(
         public string $accessToken,
         public string $refreshToken,
-        public AuthToken $authToken,
+        public null | AuthToken $authToken,
         public TokenOptions $tokenOptions
     ) {
     }

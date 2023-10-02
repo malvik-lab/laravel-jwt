@@ -8,6 +8,7 @@ class TokenOptions
     private int $refreshTokenTtl;
     private array $roles;
     private array $permissions;
+    private bool $stealth;
 
     public function __construct()
     {
@@ -15,6 +16,7 @@ class TokenOptions
         $this->refreshTokenTtl = config('jwt.refresh_token_ttl');
         $this->roles = [];
         $this->permissions = [];
+        $this->stealth = false;
     }
 
     /**
@@ -47,6 +49,14 @@ class TokenOptions
     public function getPermissions(): array
     {
         return $this->permissions;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getStealth(): bool
+    {
+        return $this->stealth;
     }
 
     /**
@@ -92,6 +102,15 @@ class TokenOptions
     public function setPermission(string $permission): void
     {
         $this->permissions = [$permission];
+    }
+
+    /**
+     * @param bool $stealth
+     * @return void
+     */
+    public function setStealth(bool $stealth): void
+    {
+        $this->stealth = $stealth;
     }
 
     /**

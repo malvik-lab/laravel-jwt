@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $at_exp
  * @property string $rt_jti
  * @property int $rt_exp
+ * @property mixed $roles
+ * @property mixed $permissions
  */
 
 class AuthToken extends Model
@@ -22,6 +24,8 @@ class AuthToken extends Model
 
     protected $fillable = [
         'user_id',
+        'roles',
+        'permissions',
         'at_jti',
         'at_exp',
         'rt_jti',

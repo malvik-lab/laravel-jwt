@@ -26,8 +26,9 @@ class JwtRefreshTokenGuard extends AbstractJwtGuard
     public function refresh()
     {
         $user = $this->user();
+        $options = $this->jwtService->tokenOptionsByAuthToken($this->authToken());
 
         $this->logout();
-        $this->login($user);
+        $this->login($user, $options);
     }
 }

@@ -18,7 +18,7 @@ use MalvikLab\LaravelJwt\Services\JwtService\TokenOptions;
 abstract class AbstractJwtGuard implements Guard
 {
     private Request $request;
-    private JwtService $jwtService;
+    public JwtService $jwtService;
     private null | Authenticatable $user;
     private null | AuthToken $authToken;
     private null | TokenBagDTO $tokenBagDTO;

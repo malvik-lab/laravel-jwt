@@ -68,6 +68,8 @@ readonly class JwtService
 
         $authToken = AuthToken::create([
             'user_id' => $user->getAuthIdentifier(),
+            'roles' => $options->getRoles(),
+            'permissions' => $options->getPermissions(),
             'at_jti' => $atJti,
             'at_exp' => $atExp,
             'rt_jti' => $rtJti,
@@ -80,6 +82,15 @@ readonly class JwtService
             $authToken,
             $options
         );
+    }
+
+    public function tokenOptionsByAuthToken(AuthToken $authToken): TokenOptions
+    {
+        $tokenOptions = new TokenOptions();
+        $tokenOptions->setRoles($authToken->roles);
+        $tokenOptions->setPermissions($authToken->permissions);
+
+        return $tokenOptions;
     }
 
     /**

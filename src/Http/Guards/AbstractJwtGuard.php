@@ -89,6 +89,76 @@ abstract class AbstractJwtGuard implements Guard
     }
 
     /**
+     * @return AuthToken|null
+     */
+    public function getAuthToken(): null | AuthToken
+    {
+        return $this->authToken;
+    }
+
+    /**
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        if ( in_array($role, $this->getAuthToken()->roles) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $permission
+     * @return bool
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if ( in_array($permission, $this->getAuthToken()->permissions) )
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array $roles
+     * @return bool
+     */
+    public function hasRoles(array $roles): bool
+    {
+        foreach ( $roles as $role )
+        {
+            if ( !$this->hasRole($role) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $permissions
+     * @return bool
+     */
+    public function hasPermissions(array $permissions): bool
+    {
+        foreach ( $permissions as $permission )
+        {
+            if ( !$this->hasPermission($permission) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @return string
      */
     public function bearerToken(): string

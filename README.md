@@ -129,6 +129,65 @@ Route::middleware(['auth:jwt-refresh-token'])->group(function () {
 });
 ```
 
+### Controller
+For basic use you can use **MalvikLab\LaravelJwt\Http\Controllers\AuthController** (as in the previous example) or use a custom controller for greater control of the authentication logic.
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use MalvikLab\LaravelJwt\Services\AuthService\AuthService;
+use MalvikLab\LaravelJwt\Services\JwtService\TokenOptions;
+
+class AuthController extends Controller
+{
+    private AuthService $authService;
+    private Guard $accessTokenGuard;
+
+    public function __construct()
+    {
+        $this->authService = new AuthService();
+        $this->accessTokenGuard = Auth::guard('jwt-access-token');
+    }
+
+    public function login(Request $request): JsonResponse
+    {
+        // Validate the request and retrieve the user
+        // or use the Auth Service method
+        $user = $this->authService->checkCredentials($request->all());
+
+        $options = new TokenOptions();
+        $options->setRole('mod');
+        $options->setPermissions([
+            'add-post',
+            'edit-post',
+            'delete-post'
+        ]);
+        $options->setAccessTokenTtl(14400);
+        $options->setRefreshTokenTtl(2592000);
+
+        $this->accessTokenGuard->login($user, $options);
+
+        return $this->accessTokenGuard->response();
+    }
+    
+    public function me(Request $request): JsonResponse
+    {
+        $authToken = $this->accessTokenGuard->getAuthToken();
+
+        $this->accessTokenGuard->hasRole('mod');
+        $this->accessTokenGuard->hasRoles(['mod', 'other-role']);
+        $this->accessTokenGuard->hasPermission('add-post');
+        $this->accessTokenGuard->hasPermissions(['add-post', 'edit-post', 'delete-post']);
+
+        return response()->json($request->user());
+    }
+}
+```
 
 ### Recommended but not mandatory
 To ensure a JSON response is always returned, it is recommended to do the following:

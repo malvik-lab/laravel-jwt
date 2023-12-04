@@ -5,6 +5,7 @@ namespace MalvikLab\LaravelJwt\Services\JwtService;
 use Firebase\JWT\JWT as FirebaseJwt;
 use Firebase\JWT\Key as FirebaseKey;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -98,6 +99,14 @@ readonly class JwtService
         return $tokenOptions;
     }
 
+    public function authTokenByAccessTokenJti(string $jti): null | Builder | AuthToken
+    {
+        return AuthToken::query()
+            ->where('at_jti', $jti)
+            ->where('at_revoked', 0)
+            ->first();
+    }
+
     /**
      * @param TokenDTO $tokenDTO
      * @param int|string $userId
@@ -133,6 +142,19 @@ readonly class JwtService
     public function deleteAuthToken(AuthToken $authToken): void
     {
         $authToken->delete();
+    }
+
+    public function deleteUserAuthTokens(User $user, null | AuthToken $excludeAuthToken = null): void
+    {
+        $query = AuthToken::query();
+        $query->where('user_id', $user->id);
+
+        if ( $excludeAuthToken )
+        {
+            $query->whereNot('id', $excludeAuthToken->id);
+        }
+
+        $query->delete();
     }
 
     /**

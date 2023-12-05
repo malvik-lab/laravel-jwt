@@ -48,8 +48,8 @@ readonly class JwtService
     public function makeTokens(
         Authenticatable $user,
         TokenOptions $options = new TokenOptions(),
-        null | string $ip,
-        null | string $userAgent
+        null | string $ip = null,
+        null | string $userAgent = null
     ): TokenBagDTO
     {
         $atJti = Str::uuid()->toString();

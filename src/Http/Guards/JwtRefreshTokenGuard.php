@@ -22,6 +22,8 @@ class JwtRefreshTokenGuard extends AbstractJwtGuard
     }
 
     /**
+     * @param string|null $ip
+     * @param string|null $userAgent
      * @return void
      */
     public function refresh(

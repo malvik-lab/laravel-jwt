@@ -5,7 +5,6 @@ namespace MalvikLab\LaravelJwt\Services\JwtService;
 use Firebase\JWT\JWT as FirebaseJwt;
 use Firebase\JWT\Key as FirebaseKey;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -42,9 +41,16 @@ readonly class JwtService
     /**
      * @param Authenticatable $user
      * @param TokenOptions $options
+     * @param string|null $ip
+     * @param string|null $userAgent
      * @return TokenBagDTO
      */
-    public function makeTokens(Authenticatable $user, TokenOptions $options = new TokenOptions()): TokenBagDTO
+    public function makeTokens(
+        Authenticatable $user,
+        TokenOptions $options = new TokenOptions(),
+        null | string $ip,
+        null | string $userAgent
+    ): TokenBagDTO
     {
         $atJti = Str::uuid()->toString();
         $atExp = is_int($options->getAccessTokenTtl()) ? Carbon::now()->addSeconds($options->getAccessTokenTtl())->unix() : null;
@@ -79,6 +85,8 @@ readonly class JwtService
                 'at_exp' => $atExp,
                 'rt_jti' => $rtJti,
                 'rt_exp' => $rtExp,
+                'ip' => $ip,
+                'user_agent' => Str::limit($userAgent,512),
             ]);
         }
 

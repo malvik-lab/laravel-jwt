@@ -30,6 +30,8 @@ class AuthToken extends Model
         'at_exp',
         'rt_jti',
         'rt_exp',
+        'ip',
+        'user_agent'
     ];
 
     protected $casts = [

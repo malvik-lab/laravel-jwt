@@ -4,6 +4,7 @@ namespace MalvikLab\LaravelJwt\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use MalvikLab\LaravelJwt\Services\JwtService\TokenOptions;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Auth\Guard;
@@ -30,7 +31,12 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $this->accessTokenGuard->attempt($request->validated());
+        $this->accessTokenGuard->attempt(
+            $request->validated(),
+            new TokenOptions(),
+            $request->ip(),
+            $request->userAgent()
+        );
 
         return $this->accessTokenGuard->response();
     }
@@ -57,9 +63,12 @@ class AuthController extends Controller
     /**
      * @return mixed
      */
-    public function refresh(): mixed
+    public function refresh(Request $request): mixed
     {
-        $this->refreshTokenGuard->refresh();
+        $this->refreshTokenGuard->refresh(
+            $request->ip(),
+            $request->userAgent()
+        );
 
         return $this->refreshTokenGuard->response();
     }

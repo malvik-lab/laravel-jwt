@@ -2,7 +2,6 @@
 
 namespace MalvikLab\LaravelJwt\Http\Guards;
 
-use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -32,11 +31,19 @@ abstract class AbstractJwtGuard implements Guard
 
     /**
      * @param Authenticatable $user
+     * @param TokenOptions $options
+     * @param string|null $ip
+     * @param string|null $userAgent
      * @return void
      */
-    public function login(Authenticatable $user, TokenOptions $options = new TokenOptions()): void
+    public function login(
+        Authenticatable $user,
+        TokenOptions $options = new TokenOptions(),
+        null | string $ip = null,
+        null | string $userAgent = null
+    ): void
     {
-        $this->tokenBagDTO = $this->jwtService->makeTokens($user, $options);
+        $this->tokenBagDTO = $this->jwtService->makeTokens($user, $options, $ip, $userAgent);
     }
 
     /**

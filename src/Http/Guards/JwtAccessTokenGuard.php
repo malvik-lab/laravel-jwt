@@ -23,7 +23,9 @@ class JwtAccessTokenGuard extends AbstractJwtGuard
      */
     public function attempt(
         array $credentials,
-        TokenOptions $options = new TokenOptions()
+        TokenOptions $options = new TokenOptions(),
+        null | string $ip = null,
+        null | string $userAgent = null
     ): bool
     {
         if ( !array_key_exists('password', $credentials) )
@@ -40,7 +42,7 @@ class JwtAccessTokenGuard extends AbstractJwtGuard
             throw new AuthenticationException('Invalid credentials');
         }
 
-        $this->login($user, $options);
+        $this->login($user, $options, $ip, $userAgent);
 
         return true;
     }

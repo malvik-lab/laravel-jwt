@@ -3,6 +3,7 @@
 namespace MalvikLab\LaravelJwt\Http\Guards;
 
 use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Support\Facades\Request;
 use MalvikLab\LaravelJwt\Enum\TokenTypeEnum;
 
 class JwtRefreshTokenGuard extends AbstractJwtGuard
@@ -23,12 +24,20 @@ class JwtRefreshTokenGuard extends AbstractJwtGuard
     /**
      * @return void
      */
-    public function refresh()
+    public function refresh(
+        null | string $ip = null,
+        null | string $userAgent = null
+    ): void
     {
         $user = $this->user();
         $options = $this->jwtService->tokenOptionsByAuthToken($this->authToken());
 
         $this->logout();
-        $this->login($user, $options);
+        $this->login(
+            $user,
+            $options,
+            $ip,
+            $userAgent
+        );
     }
 }

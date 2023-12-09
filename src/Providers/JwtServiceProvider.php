@@ -40,9 +40,11 @@ class JwtServiceProvider extends ServiceProvider
 
         $createAuthTokensTableMigration = '2023_09_25_125422_create_auth_tokens_table.php';
         $addIpAndUserAgentToAuthTokensTableMigration = '2023_12_05_092449_add_ip_and_user_agent_to_auth_tokens_table.php';
+        $addIpDetailsToAuthTokensTableMigration = '2023_13_05_110253_add_ip_details_to_auth_tokens_table.php';
         $this->publishes([
             sprintf('%s/../../database/migrations/%s', __DIR__, $createAuthTokensTableMigration) => database_path(sprintf('migrations/%s', $createAuthTokensTableMigration)),
             sprintf('%s/../../database/migrations/%s', __DIR__, $addIpAndUserAgentToAuthTokensTableMigration) => database_path(sprintf('migrations/%s', $addIpAndUserAgentToAuthTokensTableMigration)),
+            sprintf('%s/../../database/migrations/%s', __DIR__, $addIpDetailsToAuthTokensTableMigration) => database_path(sprintf('migrations/%s', $addIpDetailsToAuthTokensTableMigration)),
         ], 'jwt-migration');
     }
 }

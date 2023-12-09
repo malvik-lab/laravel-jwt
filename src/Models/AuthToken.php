@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $at_exp
  * @property string $rt_jti
  * @property int $rt_exp
+ * @property string $ip
+ * @property string $user_agent
  * @property mixed $roles
  * @property mixed $permissions
  */

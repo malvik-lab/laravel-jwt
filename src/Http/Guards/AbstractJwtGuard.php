@@ -44,6 +44,8 @@ abstract class AbstractJwtGuard implements Guard
     ): void
     {
         $this->tokenBagDTO = $this->jwtService->makeTokens($user, $options, $ip, $userAgent);
+        $this->setUser($user);
+        $this->setAuthToken($this->tokenBagDTO->authToken);
     }
 
     /**

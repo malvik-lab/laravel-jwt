@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $rt_jti
  * @property int $rt_exp
  * @property string $ip
+ * @property string ip_details
  * @property string $user_agent
  * @property mixed $roles
  * @property mixed $permissions
@@ -33,11 +34,13 @@ class AuthToken extends Model
         'rt_jti',
         'rt_exp',
         'ip',
+        'ip_details',
         'user_agent'
     ];
 
     protected $casts = [
         'roles' => 'array',
         'permissions' => 'array',
+        'ip_details' => 'array',
     ];
 }

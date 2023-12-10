@@ -4,6 +4,7 @@ namespace MalvikLab\LaravelJwt\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use MalvikLab\LaravelJwt\Models\AuthToken;
 use MalvikLab\LaravelJwt\Services\JwtService\TokenOptions;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Illuminate\Support\Facades\Auth;

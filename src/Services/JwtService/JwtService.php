@@ -152,7 +152,7 @@ readonly class JwtService
         $authToken->delete();
     }
 
-    public function deleteUserAuthTokens(User $user, null | AuthToken $excludeAuthToken = null): void
+    public function deleteUserAuthTokens(Authenticatable $user, null | AuthToken $excludeAuthToken = null): void
     {
         $query = AuthToken::query();
         $query->where('user_id', $user->id);

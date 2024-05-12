@@ -29,8 +29,7 @@ readonly class JwtService
         string $accessTokenPublicKeyFilePath,
         string $refreshTokenPrivateKeyFilePath,
         string $refreshTokenPublicKeyFilePath,
-    )
-    {
+    ) {
         $this->alg = $alg;
         $this->accessTokenPrivateKey = File::get($accessTokenPrivateKeyFilePath);
         $this->accessTokenPublicKey = File::get($accessTokenPublicKeyFilePath);

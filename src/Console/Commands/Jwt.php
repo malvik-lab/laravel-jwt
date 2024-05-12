@@ -52,6 +52,7 @@ class Jwt extends Command
         }
 
         File::makeDirectory($keysDirectoryPath);
+        File::put(sprintf('%s/.gitignore', $keysDirectoryPath), '*.pem');
 
         exec(sprintf('openssl genrsa -out %s 2048', $accessTokenPrivateKeyPath));
         exec(sprintf('openssl rsa -in %s -pubout -out %s 2>/dev/null', $accessTokenPrivateKeyPath, $accessTokenPublicKeyPath));
